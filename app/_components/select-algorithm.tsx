@@ -8,7 +8,7 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "../../components/ui/select";
 import { useContext } from "react";
 import {
   SortingContext,
@@ -24,11 +24,13 @@ export function SelectAlgorithm({
     function: string;
   }[];
 }) {
-  const { setAlgorithm, isSorting } =
-    useContext<SortingContextType>(SortingContext);
+  const { setAlgorithm, isSorting } = useContext<any>(SortingContext);
 
   return (
-    <Select onValueChange={(value) => setAlgorithm(value)} disabled={isSorting}>
+    <Select
+      onValueChange={(value: any) => setAlgorithm(value)}
+      disabled={isSorting}
+    >
       <SelectTrigger className="w-[180px] text-white">
         <SelectValue className="!bg-white" placeholder="Select Algorithm" />
       </SelectTrigger>
