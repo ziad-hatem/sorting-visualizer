@@ -1,12 +1,11 @@
 "use client";
-import React, { useState, useEffect, useContext } from "react";
-import * as d3 from "d3";
-import { SelectAlgorithm } from "./select-algorithm";
-import { algorithms } from "../_data/algorithms";
-import { Button } from "@/components/ui/button";
-import { SortingContext } from "../_context/sorting-context";
 import { PauseIcon, PlayIcon, ResetIcon } from "@radix-ui/react-icons";
+import { useContext, useEffect } from "react";
+import { SortingContext } from "../_context/sorting-context";
+import { algorithms } from "../_data/algorithms";
+import { SelectAlgorithm } from "./select-algorithm";
 import { SlideSpeed } from "./slide-speed";
+import { Button } from "../../components/ui/button";
 
 const SortingVisualizer = () => {
   const {
@@ -23,13 +22,12 @@ const SortingVisualizer = () => {
     handleMergeSort,
     heapSort,
     handleQuickSort,
-    setStopSorting,
     activeIndices,
     controllerRef,
-  } = useContext(SortingContext);
+  } = useContext<any>(SortingContext);
   useEffect(() => {
     resetArray();
-  }, []);
+  }, [resetArray]);
 
   const getFunction = (algorithm: string) => {
     switch (algorithm) {

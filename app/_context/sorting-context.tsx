@@ -1,6 +1,9 @@
 "use client";
 import React, { useRef, useState } from "react";
 
+// Remove the unused import
+// import * as d3 from 'd3';
+
 export type SortingContextType = {
   array: number[];
   setArray: React.Dispatch<React.SetStateAction<number[]>>;
@@ -13,15 +16,15 @@ export type SortingContextType = {
   resetArray: () => void;
   bubbleSort: () => Promise<void>;
   insertionSort: () => Promise<void>;
-  quickSort: () => Promise<void>;
-  mergeSort: () => Promise<void>;
-  merge: () => Promise<void>;
-  partition: () => Promise<void>;
   heapSort: () => Promise<void>;
   stopSorting: boolean;
-  setStopSorting: React.Dispatch<React.SetStateAction<boolean>>;
+  handleQuickSort: () => Promise<void>;
+  handleMergeSort: () => Promise<void>;
+  selectionSort: () => Promise<void>;
+
   activeIndices: number[];
   setActiveIndices: React.Dispatch<React.SetStateAction<number[]>>;
+  controllerRef: React.MutableRefObject<{ cancel: boolean }>;
 };
 
 export const SortingContext = React.createContext<
@@ -38,7 +41,7 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isSorting, setIsSorting] = useState<boolean>(false);
   const [speed, setSpeed] = useState<number>(250);
   const [stopSorting, setStopSorting] = useState(false);
-  const [activeIndices, setActiveIndices] = useState<number[]>([]); // New state for active indices
+  const [activeIndices, setActiveIndices] = useState<number[]>([]);
   const controllerRef = useRef({ cancel: false });
 
   const resetArray = () => {
@@ -67,7 +70,7 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
           await sleep(speed);
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.log(error.message);
     } finally {
       setActiveIndices([]); // Clear active indices
@@ -93,7 +96,7 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
         setArray([...arr]);
         await sleep(speed);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.log(error.message);
     } finally {
       setActiveIndices([]); // Clear active indices
@@ -134,7 +137,7 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
     const arr = array.slice();
     try {
       await quickSort(arr, 0, arr.length - 1);
-    } catch (error) {
+    } catch (error: any) {
       console.log(error.message);
     } finally {
       setArray([...arr]);
@@ -198,7 +201,7 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
     const arr = array.slice();
     try {
       await mergeSort(arr, 0, arr.length - 1);
-    } catch (error) {
+    } catch (error: any) {
       console.log(error.message);
     } finally {
       setArray([...arr]);
@@ -227,7 +230,7 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
           await sleep(speed);
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.log(error.message);
     } finally {
       setActiveIndices([]); // Clear active indices
@@ -282,7 +285,7 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
         await sleep(speed);
         await heapify(i, 0);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.log(error.message);
     } finally {
       setActiveIndices([]); // Clear active indices
@@ -294,7 +297,7 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
       value={{
         array,
         setArray,
-        algorithm,
+        algorithm: algorithm || "",
         setAlgorithm,
         isSorting,
         setIsSorting,
@@ -306,14 +309,9 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
         handleQuickSort,
         handleMergeSort,
         selectionSort,
-        quickSort,
-        mergeSort,
-        merge,
-        partition,
         heapSort,
         stopSorting,
-        setStopSorting,
-        activeIndices, // Provide active indices
+        activeIndices,
         setActiveIndices,
         controllerRef,
       }}

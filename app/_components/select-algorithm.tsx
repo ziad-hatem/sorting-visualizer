@@ -9,11 +9,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useContext } from "react";
 import {
   SortingContext,
   SortingContextType,
 } from "../_context/sorting-context";
-import { useContext } from "react";
 
 export function SelectAlgorithm({
   algorithms,
