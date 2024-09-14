@@ -1,6 +1,6 @@
 "use client";
-import { cn } from "@/lib/utils";
-import { Slider } from "@/components/ui/slider";
+import { cn } from "../../lib/utils";
+import { Slider } from "../../components/ui/slider";
 import { SortingContext } from "../_context/sorting-context";
 import { useContext } from "react";
 
@@ -11,7 +11,7 @@ export function SlideSpeed({
   speed: number;
   setSpeed: (speed: number) => void;
 }) {
-  const { isSorting } = useContext(SortingContext);
+  const { isSorting } = useContext<any>(SortingContext);
   return (
     <Slider
       disabled={isSorting}
@@ -19,7 +19,7 @@ export function SlideSpeed({
       max={500}
       step={10}
       className={cn("w-[200px]")}
-      onValueChange={(value) => setSpeed(value[0])}
+      onValueChange={(value: any) => setSpeed(value[0])}
     />
   );
 }
