@@ -25,9 +25,10 @@ const SortingVisualizer = () => {
     activeIndices,
     controllerRef,
   } = useContext<any>(SortingContext);
+
   useEffect(() => {
     resetArray();
-  }, [resetArray]);
+  }, []);
 
   const getFunction = (algorithm: string) => {
     switch (algorithm) {
@@ -61,7 +62,7 @@ const SortingVisualizer = () => {
             <ResetIcon className="w-4 h-4" />
           </Button>
           <Button
-            disabled={algorithm == null ? true : false}
+            disabled={algorithm == "" ? true : false}
             onClick={() => {
               if (isSorting) {
                 setIsSorting(false);

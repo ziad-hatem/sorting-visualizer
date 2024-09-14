@@ -1,5 +1,6 @@
 "use client";
 
+import { useContext } from "react";
 import {
   Select,
   SelectContent,
@@ -9,11 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../components/ui/select";
-import { useContext } from "react";
-import {
-  SortingContext,
-  SortingContextType,
-} from "../_context/sorting-context";
+import { SortingContext } from "../_context/sorting-context";
 
 export function SelectAlgorithm({
   algorithms,
@@ -34,7 +31,7 @@ export function SelectAlgorithm({
       <SelectTrigger className="w-[180px] text-white">
         <SelectValue className="!bg-white" placeholder="Select Algorithm" />
       </SelectTrigger>
-      <SelectContent className="!bg-transparent !text-white">
+      <SelectContent className="!bg-slate-950 !text-white">
         <SelectGroup className="!text-white">
           <SelectLabel className="!text-white">Algorithm</SelectLabel>
           {algorithms.map(
