@@ -16,8 +16,8 @@ export function SlideSpeed({
     <Slider
       disabled={isSorting}
       defaultValue={[speed]}
-      max={500}
-      step={10}
+      max={100}
+      step={1}
       className={cn("w-[200px]")}
       onValueChange={(value: any) => setSpeed(value[0])}
     />
