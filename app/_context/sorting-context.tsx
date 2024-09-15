@@ -383,12 +383,15 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
     }
 
     for (let i = n - 1; i >= 0; i--) {
+      if (controllerRef.current.cancel) throw new Error("Cancelled");
       output[count[Math.floor(arr[i] / exp) % 10] - 1] = arr[i];
       count[Math.floor(arr[i] / exp) % 10]--;
     }
 
     for (let i = 0; i < n; i++) {
+      if (controllerRef.current.cancel) throw new Error("Cancelled");
       arr[i] = output[i];
+      setActiveIndices([i]);
       setArray([...arr]);
       await sleep(speed);
     }
@@ -402,6 +405,7 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
 
     try {
       for (let exp = 1; Math.floor(max / exp) > 0; exp *= 10) {
+        if (controllerRef.current.cancel) throw new Error("Cancelled");
         await countingSortForRadix(arr, exp);
       }
     } catch (error: any) {
@@ -412,41 +416,45 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  const countingSort = async () => {
-    setIsSorting(true);
-    controllerRef.current.cancel = false;
-    const arr = array.slice();
-    const n = arr.length;
-    const output = new Array(n).fill(0);
-    const count = new Array(Math.max(...arr) + 1).fill(0);
+const countingSort = async () => {
+  setIsSorting(true);
+  controllerRef.current.cancel = false;
+  const arr = array.slice();
+  const n = arr.length;
+  const output = new Array(n).fill(0);
+  const count = new Array(Math.max(...arr) + 1).fill(0);
 
-    try {
-      for (let i = 0; i < n; i++) {
-        count[arr[i]]++;
-      }
-
-      for (let i = 1; i < count.length; i++) {
-        count[i] += count[i - 1];
-      }
-
-      for (let i = n - 1; i >= 0; i--) {
-        output[count[arr[i]] - 1] = arr[i];
-        count[arr[i]]--;
-      }
-
-      for (let i = 0; i < n; i++) {
-        arr[i] = output[i];
-        setArray([...arr]);
-        await sleep(speed);
-      }
-    } catch (error: any) {
-      console.log(error.message);
-    } finally {
-      setActiveIndices([]);
-      setIsSorting(false);
+  try {
+    for (let i = 0; i < n; i++) {
+      if (controllerRef.current.cancel) throw new Error("Cancelled");
+      count[arr[i]]++;
     }
-  };
 
+    for (let i = 1; i < count.length; i++) {
+      if (controllerRef.current.cancel) throw new Error("Cancelled");
+      count[i] += count[i - 1];
+    }
+
+    for (let i = n - 1; i >= 0; i--) {
+      if (controllerRef.current.cancel) throw new Error("Cancelled");
+      output[count[arr[i]] - 1] = arr[i];
+      count[arr[i]]--;
+    }
+
+    for (let i = 0; i < n; i++) {
+      if (controllerRef.current.cancel) throw new Error("Cancelled");
+      arr[i] = output[i];
+      setActiveIndices([i]);
+      setArray([...arr]);
+      await sleep(speed);
+    }
+  } catch (error: any) {
+    console.log(error.message);
+  } finally {
+    setActiveIndices([]);
+    setIsSorting(false);
+  }
+};
   return (
     <SortingContext.Provider
       value={{
