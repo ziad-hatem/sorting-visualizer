@@ -82,14 +82,14 @@ const SortingVisualizer = () => {
           </Button>
         </div>
       </div>
-      <div className="flex gap-2 rotate-180">
+      <div className="flex gap-2 rotate-180 w-full">
         {array.map((value: number, idx: number) => (
           <div
             key={idx}
             style={{ height: `${value}px` }}
             className={`w-1 ${
               activeIndices.includes(idx)
-                ? "bg-green-800" // Color for active elements
+                ? "bg-green-800"
                 : "bg-gradient-to-r from-slate-200 to-slate-600"
             }`}
           />
