@@ -29,4 +29,19 @@ export const algorithms = [
     value: "heap-sort",
     function: "heapSort",
   },
+  {
+    name: "Shell Sort",
+    value: "shell-sort",
+    function: "shellSort",
+  },
+  {
+    name: "Radix Sort",
+    value: "radix-sort",
+    function: "radixSort",
+  },
+  {
+    name: "Counting Sort",
+    value: "counting-sort",
+    function: "countingSort",
+  },
 ];

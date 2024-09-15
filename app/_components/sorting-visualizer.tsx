@@ -26,6 +26,9 @@ const SortingVisualizer = () => {
     controllerRef,
     arrayLength,
     elapsedTime,
+    shellSort,
+    radixSort,
+    countingSort,
   } = useContext<any>(SortingContext);
 
   useEffect(() => {
@@ -46,6 +49,12 @@ const SortingVisualizer = () => {
         return selectionSort;
       case "heap-sort":
         return heapSort;
+      case "shell-sort":
+        return shellSort;
+      case "radix-sort":
+        return radixSort;
+      case "counting-sort":
+        return countingSort;
       default:
         return null;
     }
@@ -93,7 +102,7 @@ const SortingVisualizer = () => {
           Elapsed Time: {formatElapsedTime(elapsedTime)}
         </div>
       </div>
-      <div className="flex gap-2 rotate-180 w-full">
+      <div className="flex gap-2 rotate-180 min-h-[500px] w-full">
         {array.map((value: number, idx: number) => (
           <div
             key={idx}

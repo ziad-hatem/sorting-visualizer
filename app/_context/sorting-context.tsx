@@ -1,9 +1,5 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
-
-// Remove the unused import
-// import * as d3 from 'd3';
-
 export type SortingContextType = {
   array: number[];
   setArray: React.Dispatch<React.SetStateAction<number[]>>;
@@ -27,6 +23,9 @@ export type SortingContextType = {
   arrayLength: number;
   setArrayLength: React.Dispatch<React.SetStateAction<number>>;
   elapsedTime: number;
+  shellSort: () => Promise<void>;
+  radixSort: () => Promise<void>;
+  countingSort: () => Promise<void>;
 };
 
 export const SortingContext = React.createContext<
@@ -47,7 +46,7 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
   const [elapsedTime, setElapsedTime] = useState<number>(0);
   const [activeIndices, setActiveIndices] = useState<number[]>([]);
   const controllerRef = useRef({ cancel: false });
-  const timerRef = useRef<NodeJS.Timeout | null>(null); // Ref to store the timer
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const resetArray = () => {
     const newArray = Array.from({ length: 100 }, () =>
@@ -62,33 +61,33 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     const updateArrayLength = () => {
       const width = window.innerWidth;
-      const newLength = Math.floor(width / 10); // Adjust the divisor to control the number of columns
+      const newLength = Math.floor(width / 10);
       setArrayLength(newLength);
-      resetArray(); // Reset array whenever the length changes
+      resetArray();
     };
 
     window.addEventListener("resize", updateArrayLength);
-    updateArrayLength(); // Initial call
+    updateArrayLength();
 
     return () => window.removeEventListener("resize", updateArrayLength);
   }, []);
 
   useEffect(() => {
     if (isSorting) {
-      setElapsedTime(0); // Reset the timer when sorting starts
+      setElapsedTime(0);
       timerRef.current = setInterval(() => {
         setElapsedTime((prevTime) => prevTime + 10);
-      }, 10); // Update the timer every 10 milliseconds
+      }, 10);
     } else {
       if (timerRef.current) {
-        clearInterval(timerRef.current); // Clear the timer when sorting stops
+        clearInterval(timerRef.current);
         timerRef.current = null;
       }
     }
 
     return () => {
       if (timerRef.current) {
-        clearInterval(timerRef.current); // Cleanup the timer on unmount
+        clearInterval(timerRef.current);
       }
     };
   }, [isSorting]);
@@ -98,9 +97,8 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
       for (let i = 0; i < array.length; i++) {
         for (let j = 0; j < array.length - i - 1; j++) {
           if (controllerRef.current.cancel) throw new Error("Cancelled");
-          setActiveIndices([j, j + 1]); // Set active indices
+          setActiveIndices([j, j + 1]);
           if (array[j] > array[j + 1]) {
-            // Swap elements
             let temp = array[j];
             array[j] = array[j + 1];
             array[j + 1] = temp;
@@ -112,8 +110,8 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
     } catch (error: any) {
       console.log(error.message);
     } finally {
-      setActiveIndices([]); // Clear active indices
-      setIsSorting(false); // Reset sorting state when done
+      setActiveIndices([]);
+      setIsSorting(false);
     }
   };
 
@@ -125,7 +123,7 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
         let j = i - 1;
         while (j >= 0 && arr[j] > key) {
           if (controllerRef.current.cancel) throw new Error("Cancelled");
-          setActiveIndices([j, j + 1]); // Set active indices
+          setActiveIndices([j, j + 1]);
           arr[j + 1] = arr[j];
           j = j - 1;
           setArray([...arr]);
@@ -138,8 +136,8 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
     } catch (error: any) {
       console.log(error.message);
     } finally {
-      setActiveIndices([]); // Clear active indices
-      setIsSorting(false); // Reset sorting state when done
+      setActiveIndices([]);
+      setIsSorting(false);
     }
   };
 
@@ -156,7 +154,7 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
     let i = low - 1;
     for (let j = low; j < high; j++) {
       if (controllerRef.current.cancel) throw new Error("Cancelled");
-      setActiveIndices([j, high]); // Set active indices
+      setActiveIndices([j, high]);
       if (arr[j] < pivot) {
         i++;
         [arr[i], arr[j]] = [arr[j], arr[i]];
@@ -172,7 +170,7 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const handleQuickSort = async () => {
     setIsSorting(true);
-    controllerRef.current.cancel = false; // Reset cancel flag
+    controllerRef.current.cancel = false;
     const arr = array.slice();
     try {
       await quickSort(arr, 0, arr.length - 1);
@@ -202,7 +200,7 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
       k = l;
     while (i < n1 && j < n2) {
       if (controllerRef.current.cancel) throw new Error("Cancelled");
-      setActiveIndices([k]); // Set active index
+      setActiveIndices([k]);
       if (L[i] <= R[j]) {
         arr[k] = L[i];
         i++;
@@ -216,7 +214,7 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
     }
     while (i < n1) {
       if (controllerRef.current.cancel) throw new Error("Cancelled");
-      setActiveIndices([k]); // Set active index
+      setActiveIndices([k]);
       arr[k] = L[i];
       i++;
       k++;
@@ -225,7 +223,7 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
     }
     while (j < n2) {
       if (controllerRef.current.cancel) throw new Error("Cancelled");
-      setActiveIndices([k]); // Set active index
+      setActiveIndices([k]);
       arr[k] = R[j];
       j++;
       k++;
@@ -236,7 +234,7 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const handleMergeSort = async () => {
     setIsSorting(true);
-    controllerRef.current.cancel = false; // Reset cancel flag
+    controllerRef.current.cancel = false;
     const arr = array.slice();
     try {
       await mergeSort(arr, 0, arr.length - 1);
@@ -250,14 +248,14 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const selectionSort = async () => {
     setIsSorting(true);
-    controllerRef.current.cancel = false; // Reset cancel flag
+    controllerRef.current.cancel = false;
     const arr = array.slice();
     try {
       for (let i = 0; i < arr.length; i++) {
         let minIdx = i;
         for (let j = i + 1; j < arr.length; j++) {
           if (controllerRef.current.cancel) throw new Error("Cancelled");
-          setActiveIndices([i, j]); // Set active indices
+          setActiveIndices([i, j]);
           if (arr[j] < arr[minIdx]) {
             minIdx = j;
           }
@@ -272,14 +270,14 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
     } catch (error: any) {
       console.log(error.message);
     } finally {
-      setActiveIndices([]); // Clear active indices
+      setActiveIndices([]);
       setIsSorting(false);
     }
   };
 
   const heapSort = async () => {
-    setIsSorting(true); // Start sorting
-    controllerRef.current.cancel = false; // Reset cancel flag
+    setIsSorting(true);
+    controllerRef.current.cancel = false;
     const arr = array.slice();
 
     const heapify = async (n: number, i: number) => {
@@ -289,7 +287,7 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
 
       if (left < n) {
         if (controllerRef.current.cancel) throw new Error("Cancelled");
-        setActiveIndices([i, left]); // Set active indices
+        setActiveIndices([i, left]);
         if (arr[left] > arr[largest]) {
           largest = left;
         }
@@ -327,10 +325,128 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
     } catch (error: any) {
       console.log(error.message);
     } finally {
-      setActiveIndices([]); // Clear active indices
-      setIsSorting(false); // End sorting
+      setActiveIndices([]);
+      setIsSorting(false);
     }
   };
+
+  const shellSort = async () => {
+    setIsSorting(true);
+    controllerRef.current.cancel = false;
+    const arr = array.slice();
+    const n = arr.length;
+
+    try {
+      for (let gap = Math.floor(n / 2); gap > 0; gap = Math.floor(gap / 2)) {
+        for (let i = gap; i < n; i++) {
+          let temp = arr[i];
+          let j;
+          for (j = i; j >= gap && arr[j - gap] > temp; j -= gap) {
+            if (controllerRef.current.cancel) throw new Error("Cancelled");
+            setActiveIndices([j, j - gap]);
+            arr[j] = arr[j - gap];
+            setArray([...arr]);
+            await sleep(speed);
+          }
+          arr[j] = temp;
+          setArray([...arr]);
+          await sleep(speed);
+        }
+      }
+    } catch (error: any) {
+      console.log(error.message);
+    } finally {
+      setActiveIndices([]);
+      setIsSorting(false);
+    }
+  };
+
+  const getMax = (arr: number[]) => {
+    let max = arr[0];
+    for (let i = 1; i < arr.length; i++) {
+      if (arr[i] > max) max = arr[i];
+    }
+    return max;
+  };
+
+  const countingSortForRadix = async (arr: number[], exp: number) => {
+    const n = arr.length;
+    const output = new Array(n).fill(0);
+    const count = new Array(10).fill(0);
+
+    for (let i = 0; i < n; i++) {
+      count[Math.floor(arr[i] / exp) % 10]++;
+    }
+
+    for (let i = 1; i < 10; i++) {
+      count[i] += count[i - 1];
+    }
+
+    for (let i = n - 1; i >= 0; i--) {
+      output[count[Math.floor(arr[i] / exp) % 10] - 1] = arr[i];
+      count[Math.floor(arr[i] / exp) % 10]--;
+    }
+
+    for (let i = 0; i < n; i++) {
+      arr[i] = output[i];
+      setArray([...arr]);
+      await sleep(speed);
+    }
+  };
+
+  const radixSort = async () => {
+    setIsSorting(true);
+    controllerRef.current.cancel = false;
+    const arr = array.slice();
+    const max = getMax(arr);
+
+    try {
+      for (let exp = 1; Math.floor(max / exp) > 0; exp *= 10) {
+        await countingSortForRadix(arr, exp);
+      }
+    } catch (error: any) {
+      console.log(error.message);
+    } finally {
+      setActiveIndices([]);
+      setIsSorting(false);
+    }
+  };
+
+  const countingSort = async () => {
+    setIsSorting(true);
+    controllerRef.current.cancel = false;
+    const arr = array.slice();
+    const n = arr.length;
+    const output = new Array(n).fill(0);
+    const count = new Array(Math.max(...arr) + 1).fill(0);
+
+    try {
+      for (let i = 0; i < n; i++) {
+        count[arr[i]]++;
+      }
+
+      for (let i = 1; i < count.length; i++) {
+        count[i] += count[i - 1];
+      }
+
+      for (let i = n - 1; i >= 0; i--) {
+        output[count[arr[i]] - 1] = arr[i];
+        count[arr[i]]--;
+      }
+
+      for (let i = 0; i < n; i++) {
+        arr[i] = output[i];
+        setArray([...arr]);
+        await sleep(speed);
+      }
+    } catch (error: any) {
+      console.log(error.message);
+    } finally {
+      setActiveIndices([]);
+      setIsSorting(false);
+    }
+  };
+
   return (
     <SortingContext.Provider
       value={{
@@ -349,6 +465,7 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
         handleMergeSort,
         selectionSort,
         heapSort,
+        shellSort,
         stopSorting,
         activeIndices,
         setActiveIndices,
@@ -356,6 +473,8 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
         arrayLength: arrayLength || 0,
         setArrayLength,
         elapsedTime,
+        radixSort,
+        countingSort,
       }}
     >
       {children}
