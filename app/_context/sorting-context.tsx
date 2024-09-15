@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 // Remove the unused import
 // import * as d3 from 'd3';
@@ -21,10 +21,12 @@ export type SortingContextType = {
   handleQuickSort: () => Promise<void>;
   handleMergeSort: () => Promise<void>;
   selectionSort: () => Promise<void>;
-
   activeIndices: number[];
   setActiveIndices: React.Dispatch<React.SetStateAction<number[]>>;
   controllerRef: React.MutableRefObject<{ cancel: boolean }>;
+  arrayLength: number;
+  setArrayLength: React.Dispatch<React.SetStateAction<number>>;
+  elapsedTime: number;
 };
 
 export const SortingContext = React.createContext<
@@ -41,8 +43,11 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isSorting, setIsSorting] = useState<boolean>(false);
   const [speed, setSpeed] = useState<number>(10);
   const [stopSorting, setStopSorting] = useState(false);
+  const [arrayLength, setArrayLength] = useState<number>(100);
+  const [elapsedTime, setElapsedTime] = useState<number>(0);
   const [activeIndices, setActiveIndices] = useState<number[]>([]);
   const controllerRef = useRef({ cancel: false });
+  const timerRef = useRef<NodeJS.Timeout | null>(null); // Ref to store the timer
 
   const resetArray = () => {
     const newArray = Array.from({ length: 100 }, () =>
@@ -53,6 +58,40 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
   const sleep = (ms: number) => {
     return new Promise((resolve) => setTimeout(resolve, ms));
   };
+
+  useEffect(() => {
+    const updateArrayLength = () => {
+      const width = window.innerWidth;
+      const newLength = Math.floor(width / 10); // Adjust the divisor to control the number of columns
+      setArrayLength(newLength);
+      resetArray(); // Reset array whenever the length changes
+    };
+
+    window.addEventListener("resize", updateArrayLength);
+    updateArrayLength(); // Initial call
+
+    return () => window.removeEventListener("resize", updateArrayLength);
+  }, []);
+
+  useEffect(() => {
+    if (isSorting) {
+      setElapsedTime(0); // Reset the timer when sorting starts
+      timerRef.current = setInterval(() => {
+        setElapsedTime((prevTime) => prevTime + 10);
+      }, 10); // Update the timer every 10 milliseconds
+    } else {
+      if (timerRef.current) {
+        clearInterval(timerRef.current); // Clear the timer when sorting stops
+        timerRef.current = null;
+      }
+    }
+
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current); // Cleanup the timer on unmount
+      }
+    };
+  }, [isSorting]);
 
   const bubbleSort = async () => {
     try {
@@ -314,6 +353,9 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
         activeIndices,
         setActiveIndices,
         controllerRef,
+        arrayLength: arrayLength || 0,
+        setArrayLength,
+        elapsedTime,
       }}
     >
       {children}

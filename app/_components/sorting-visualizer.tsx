@@ -24,6 +24,8 @@ const SortingVisualizer = () => {
     handleQuickSort,
     activeIndices,
     controllerRef,
+    arrayLength,
+    elapsedTime,
   } = useContext<any>(SortingContext);
 
   useEffect(() => {
@@ -47,6 +49,12 @@ const SortingVisualizer = () => {
       default:
         return null;
     }
+  };
+
+  const formatElapsedTime = (time: number) => {
+    const seconds = Math.floor(time / 1000);
+    const milliseconds = (time % 1000) / 10;
+    return `${seconds}.${milliseconds.toFixed(0).padStart(2, "0")} seconds`;
   };
   return (
     <div className="flex flex-col gap-10 pb-16">
@@ -80,6 +88,9 @@ const SortingVisualizer = () => {
               <PlayIcon className="w-4 h-4" />
             )}
           </Button>
+        </div>
+        <div className="text-white">
+          Elapsed Time: {formatElapsedTime(elapsedTime)}
         </div>
       </div>
       <div className="flex gap-2 rotate-180 w-full">
