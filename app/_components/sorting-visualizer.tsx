@@ -29,6 +29,7 @@ const SortingVisualizer = () => {
     shellSort,
     radixSort,
     countingSort,
+    treeSort,
   } = useContext<any>(SortingContext);
 
   useEffect(() => {
@@ -55,6 +56,8 @@ const SortingVisualizer = () => {
         return radixSort;
       case "counting-sort":
         return countingSort;
+      case "tree-sort":
+        return treeSort;
       default:
         return null;
     }

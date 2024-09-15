@@ -44,4 +44,9 @@ export const algorithms = [
     value: "counting-sort",
     function: "countingSort",
   },
+  {
+    name: "Tree Sort",
+    value: "tree-sort",
+    function: "treeSort",
+  },
 ];

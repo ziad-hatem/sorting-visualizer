@@ -26,6 +26,7 @@ export type SortingContextType = {
   shellSort: () => Promise<void>;
   radixSort: () => Promise<void>;
   countingSort: () => Promise<void>;
+  treeSort: () => Promise<void>;
 };
 
 export const SortingContext = React.createContext<
@@ -416,45 +417,131 @@ export const SortingProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-const countingSort = async () => {
-  setIsSorting(true);
-  controllerRef.current.cancel = false;
-  const arr = array.slice();
-  const n = arr.length;
-  const output = new Array(n).fill(0);
-  const count = new Array(Math.max(...arr) + 1).fill(0);
+  const countingSort = async () => {
+    setIsSorting(true);
+    controllerRef.current.cancel = false;
+    const arr = array.slice();
+    const n = arr.length;
+    const output = new Array(n).fill(0);
+    const count = new Array(Math.max(...arr) + 1).fill(0);
 
-  try {
-    for (let i = 0; i < n; i++) {
-      if (controllerRef.current.cancel) throw new Error("Cancelled");
-      count[arr[i]]++;
+    try {
+      for (let i = 0; i < n; i++) {
+        if (controllerRef.current.cancel) throw new Error("Cancelled");
+        count[arr[i]]++;
+      }
+
+      for (let i = 1; i < count.length; i++) {
+        if (controllerRef.current.cancel) throw new Error("Cancelled");
+        count[i] += count[i - 1];
+      }
+
+      for (let i = n - 1; i >= 0; i--) {
+        if (controllerRef.current.cancel) throw new Error("Cancelled");
+        output[count[arr[i]] - 1] = arr[i];
+        count[arr[i]]--;
+      }
+
+      for (let i = 0; i < n; i++) {
+        if (controllerRef.current.cancel) throw new Error("Cancelled");
+        arr[i] = output[i];
+        setActiveIndices([i]);
+        setArray([...arr]);
+        await sleep(speed);
+      }
+    } catch (error: any) {
+      console.log(error.message);
+    } finally {
+      setActiveIndices([]);
+      setIsSorting(false);
     }
+  };
 
-    for (let i = 1; i < count.length; i++) {
-      if (controllerRef.current.cancel) throw new Error("Cancelled");
-      count[i] += count[i - 1];
+  class TreeNode {
+    value: number;
+    left: TreeNode | null = null;
+    right: TreeNode | null = null;
+
+    constructor(value: number) {
+      this.value = value;
     }
+  }
 
-    for (let i = n - 1; i >= 0; i--) {
-      if (controllerRef.current.cancel) throw new Error("Cancelled");
-      output[count[arr[i]] - 1] = arr[i];
-      count[arr[i]]--;
+  const insertIntoBST = (root: TreeNode | null, value: number): TreeNode => {
+    if (root === null) {
+      return new TreeNode(value);
     }
+    if (value < root.value) {
+      root.left = insertIntoBST(root.left, value);
+    } else {
+      root.right = insertIntoBST(root.right, value);
+    }
+    return root;
+  };
 
-    for (let i = 0; i < n; i++) {
+  const inOrderTraversal = async (
+    root: TreeNode | null,
+    arr: number[],
+    setArray: React.Dispatch<React.SetStateAction<number[]>>,
+    setActiveIndices: React.Dispatch<React.SetStateAction<number[]>>,
+    speed: number,
+    controllerRef: React.MutableRefObject<{ cancel: boolean }>
+  ) => {
+    if (root !== null) {
+      await inOrderTraversal(
+        root.left,
+        arr,
+        setArray,
+        setActiveIndices,
+        speed,
+        controllerRef
+      );
       if (controllerRef.current.cancel) throw new Error("Cancelled");
-      arr[i] = output[i];
-      setActiveIndices([i]);
+      arr.push(root.value);
+      setActiveIndices([arr.length - 1]);
       setArray([...arr]);
       await sleep(speed);
+      await inOrderTraversal(
+        root.right,
+        arr,
+        setArray,
+        setActiveIndices,
+        speed,
+        controllerRef
+      );
     }
-  } catch (error: any) {
-    console.log(error.message);
-  } finally {
-    setActiveIndices([]);
-    setIsSorting(false);
-  }
-};
+  };
+
+  const treeSort = async () => {
+    setIsSorting(true);
+    controllerRef.current.cancel = false;
+    const arr = array.slice();
+    let root: TreeNode | null = null;
+
+    try {
+      for (let i = 0; i < arr.length; i++) {
+        if (controllerRef.current.cancel) throw new Error("Cancelled");
+        root = insertIntoBST(root, arr[i]);
+        setActiveIndices([i]);
+        await sleep(speed);
+      }
+
+      const sortedArray: number[] = [];
+      await inOrderTraversal(
+        root,
+        sortedArray,
+        setArray,
+        setActiveIndices,
+        speed,
+        controllerRef
+      );
+    } catch (error: any) {
+      console.log(error.message);
+    } finally {
+      setActiveIndices([]);
+      setIsSorting(false);
+    }
+  };
   return (
     <SortingContext.Provider
       value={{
@@ -483,6 +570,7 @@ const countingSort = async () => {
         elapsedTime,
         radixSort,
         countingSort,
+        treeSort,
       }}
     >
       {children}
